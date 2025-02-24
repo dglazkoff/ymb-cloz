@@ -3,6 +3,7 @@ package service
 import (
 	"database/sql"
 	"fmt"
+
 	"ymb-cloz/internal/store"
 )
 
@@ -116,6 +117,17 @@ func (s *gameService) CreateGame(req *CreateGameRequest) error {
 	err = s.store.CreateGamePlayersTx(tx, game.ID, players)
 	if err != nil {
 		return fmt.Errorf("failed to create game players: %v", err)
+	}
+
+	// Update games_played for all players
+	playerIDs := make([]string, len(players))
+	for i, player := range players {
+		playerIDs[i] = player.PlayerID
+	}
+
+	err = s.store.UpdatePlayersGamesTx(tx, game.ID, playerIDs)
+	if err != nil {
+		return fmt.Errorf("failed to update players games count: %v", err)
 	}
 
 	// Commit transaction

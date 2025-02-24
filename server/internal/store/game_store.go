@@ -4,6 +4,8 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+
+	"github.com/lib/pq"
 )
 
 type GameStore interface {
@@ -12,6 +14,7 @@ type GameStore interface {
 	GetOrCreatePlayerTx(tx *sql.Tx, nickname string) (string, error)
 	GetPlayerByIDTx(tx *sql.Tx, id string) (bool, error)
 	CreateGamePlayersTx(tx *sql.Tx, gameID string, players []GamePlayer) error
+	UpdatePlayersGamesTx(tx *sql.Tx, gameID string, playerIDs []string) error
 }
 
 type PostgresGameStore struct {
@@ -102,6 +105,20 @@ func (s *PostgresGameStore) CreateGamePlayersTx(tx *sql.Tx, gameID string, playe
 		if err != nil {
 			return fmt.Errorf("error creating game player: %v", err)
 		}
+	}
+
+	return nil
+}
+
+func (s *PostgresGameStore) UpdatePlayersGamesTx(tx *sql.Tx, gameID string, playerIDs []string) error {
+	query := `
+		UPDATE players 
+		SET games_played = array_append(games_played, $1)
+		WHERE id = ANY($2)`
+
+	_, err := tx.Exec(query, gameID, pq.Array(playerIDs))
+	if err != nil {
+		return fmt.Errorf("error updating players games count: %v", err)
 	}
 
 	return nil

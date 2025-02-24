@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS players (
     --     "pos4": {"games_count": 0, "wins_count": 0},
     --     "pos5": {"games_count": 0, "wins_count": 0}
     -- }'::jsonb,
-    games_played JSONB DEFAULT '[]'::jsonb
+    games_played UUID[] DEFAULT ARRAY[]::UUID[]
 );
 
 -- Create games table

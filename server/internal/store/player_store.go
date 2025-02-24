@@ -4,6 +4,8 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+
+	"github.com/lib/pq"
 )
 
 type PlayerStore struct {
@@ -15,7 +17,7 @@ func NewPlayerStore(db *sql.DB) *PlayerStore {
 }
 
 func (s *PlayerStore) GetAllPlayers() ([]Player, error) {
-	query := `SELECT id, nickname, games_played FROM players`
+	query := `SELECT id, nickname, COALESCE(games_played, ARRAY[]::UUID[]) FROM players`
 	rows, err := s.db.Query(query)
 	if err != nil {
 		log.Printf("error querying players: %v", err)
@@ -26,10 +28,19 @@ func (s *PlayerStore) GetAllPlayers() ([]Player, error) {
 	var players []Player
 	for rows.Next() {
 		var player Player
-		if err := rows.Scan(&player.ID, &player.Nickname, &player.Games); err != nil {
+		var gamesPlayed []sql.NullString
+		if err := rows.Scan(&player.ID, &player.Nickname, pq.Array(&gamesPlayed)); err != nil {
 			log.Printf("error scanning player: %v", err)
 			return nil, err
 		}
+
+		player.GamesPlayed = make([]string, 0, len(gamesPlayed))
+		for _, g := range gamesPlayed {
+			if g.Valid {
+				player.GamesPlayed = append(player.GamesPlayed, g.String)
+			}
+		}
+
 		players = append(players, player)
 	}
 	if err = rows.Err(); err != nil {
@@ -41,9 +52,9 @@ func (s *PlayerStore) GetAllPlayers() ([]Player, error) {
 }
 
 type Player struct {
-	ID       string `json:"id"`
-	Nickname string `json:"nickname"`
-	Games    int    `json:"games"`
+	ID          string   `json:"id"`
+	Nickname    string   `json:"nickname"`
+	GamesPlayed []string `json:"games_played"`
 }
 
 type PlayerStats struct {
