@@ -31,3 +31,7 @@ func (s *PlayerService) GetTopCaptains() ([]store.PlayerStats, error) {
 func (s *PlayerService) GetTopByRole(role string) ([]store.PlayerStats, error) {
 	return s.store.GetTopByRole(role)
 }
+
+func (s *PlayerService) GetProkurorStats() (store.PlayerStats, error) {
+	return s.store.GetPlayerStats("9cbeb686-ff5f-4c58-bd66-1c0abd54f187")
+}

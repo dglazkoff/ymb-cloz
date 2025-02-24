@@ -55,6 +55,7 @@ Available commands:
 /top\_games \- Show players sorted by games played
 /top\_captains \- Show top captains by win rate
 /top\_role \<role\> \- Show top players by role \(carry/mid/offlane/pos4/pos5\)
+/prokuror \- Show prokuror stats
 
 Example:
 /top\_role carry \- Show top carry players`
@@ -156,6 +157,22 @@ func (b *Bot) handleTopRole(c *tgbotapi.Update) error {
 	return b.sendMessage(c.Message.Chat.ID, response)
 }
 
+func (b *Bot) handleProkuror(c *tgbotapi.Update) error {
+	stats, err := b.playerService.GetProkurorStats()
+	if err != nil {
+		log.Printf("Error getting prokuror stats: %v", err)
+		return b.sendMessage(c.Message.Chat.ID, "Error fetching statistics")
+	}
+
+	response := "🚨 *ВЕРХОВНЫЙ ПРОКУРОР* 🚨\n\n"
+	response += fmt.Sprintf("👮‍♂️ *%s* 👮‍♂️\n", escapeMarkdown(stats.Nickname))
+	response += fmt.Sprintf("🚔 *Статистика:* %s 🚓\n", escapeMarkdown(stats.Stats))
+	response += "\n🏛️ *Закон и порядок* ⚖️\n"
+	response += "🚨 *Справедливость восторжествует* 🚨"
+
+	return b.sendMessage(c.Message.Chat.ID, response)
+}
+
 func (b *Bot) sendMessage(chatID int64, text string) error {
 	msg := tgbotapi.NewMessage(chatID, text)
 	msg.ParseMode = tgbotapi.ModeMarkdownV2
@@ -186,6 +203,8 @@ func (b *Bot) Start() error {
 			err = b.handleTopCaptains(&update)
 		case "top_role":
 			err = b.handleTopRole(&update)
+		case "prokuror":
+			err = b.handleProkuror(&update)
 		}
 
 		if err != nil {

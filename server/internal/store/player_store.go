@@ -200,3 +200,28 @@ func (s *PlayerStore) GetTopByRole(role string) ([]PlayerStats, error) {
 	}
 	return stats, rows.Err()
 }
+
+func (s *PlayerStore) GetPlayerStats(playerID string) (PlayerStats, error) {
+	query := `
+		SELECT 
+			p.id,
+			p.nickname,
+			CAST(COUNT(CASE WHEN g.is_winner = true THEN 1 END) AS float) / CAST(COUNT(*) AS float) * 100 as winrate,
+			COUNT(CASE WHEN g.is_winner = true THEN 1 END) as wins,
+			COUNT(*) as total_games
+		FROM players p
+		JOIN game_players g ON p.id = g.player_id
+		WHERE p.id = $1
+		GROUP BY p.id, p.nickname`
+
+	var stat PlayerStats
+	var winrate float64
+	var wins, totalGames int
+	err := s.db.QueryRow(query, playerID).Scan(&stat.ID, &stat.Nickname, &winrate, &wins, &totalGames)
+	if err != nil {
+		return PlayerStats{}, err
+	}
+
+	stat.Stats = fmt.Sprintf("%.1f%% (%d/%d)", winrate, wins, totalGames)
+	return stat, nil
+}
