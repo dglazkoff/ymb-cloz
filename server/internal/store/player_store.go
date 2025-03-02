@@ -75,8 +75,7 @@ func (s *PlayerStore) GetTopByWinRate() ([]PlayerStats, error) {
 		JOIN game_players g ON p.id = g.player_id
 		GROUP BY p.id, p.nickname
 		HAVING COUNT(*) > 0
-		ORDER BY winrate DESC
-		LIMIT 10`
+		ORDER BY winrate DESC`
 
 	rows, err := s.db.Query(query)
 	if err != nil {
@@ -107,8 +106,7 @@ func (s *PlayerStore) GetTopByGames() ([]PlayerStats, error) {
 		FROM players p
 		JOIN game_players g ON p.id = g.player_id
 		GROUP BY p.id, p.nickname
-		ORDER BY games DESC
-		LIMIT 10`
+		ORDER BY games DESC`
 
 	rows, err := s.db.Query(query)
 	if err != nil {
@@ -142,8 +140,7 @@ func (s *PlayerStore) GetTopCaptains() ([]PlayerStats, error) {
 		WHERE g.is_captain = true
 		GROUP BY p.id, p.nickname
 		HAVING COUNT(*) > 0
-		ORDER BY winrate DESC
-		LIMIT 10`
+		ORDER BY winrate DESC`
 
 	rows, err := s.db.Query(query)
 	if err != nil {
@@ -178,8 +175,7 @@ func (s *PlayerStore) GetTopByRole(role string) ([]PlayerStats, error) {
 		WHERE g.role = $1
 		GROUP BY p.id, p.nickname
 		HAVING COUNT(*) > 0
-		ORDER BY winrate DESC
-		LIMIT 10`
+		ORDER BY winrate DESC`
 
 	rows, err := s.db.Query(query, role)
 	if err != nil {
