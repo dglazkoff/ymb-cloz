@@ -56,6 +56,7 @@ Available commands:
 /top\_captains \- Show top captains by win rate
 /top\_role \<role\> \- Show top players by role \(carry/mid/offlane/pos4/pos5\)
 /prokuror \- Show prokuror stats
+/happy\_birthday \- Special birthday wishes for Даник
 
 Example:
 /top\_role carry \- Show top carry players`
@@ -173,6 +174,27 @@ func (b *Bot) handleProkuror(c *tgbotapi.Update) error {
 	return b.sendMessage(c.Message.Chat.ID, response)
 }
 
+func (b *Bot) handleHappyBirthday(c *tgbotapi.Update) error {
+	emojis := "🎂🎁🎉🎊🥳🍾🥂🎇✨"
+	nickname := "даня тапок"
+
+	response := fmt.Sprintf("*С Днем Рождения, Даник!* %s\n\n", emojis)
+	response += "Братан, от души желаю:\n"
+	response += "💪 Силы и мощи как у быка\n"
+	response += "💰 Бабла, чтобы некуда было девать\n"
+	response += "🏆 Побед на всех фронтах\n"
+	response += "🔥 Огня в глазах и страсти в сердце\n"
+	response += "🎮 И конечно же побед в играх!\n\n"
+
+	response += fmt.Sprintf("*Статистика игрока %s:*\n", escapeMarkdown(nickname))
+	response += "🏅 *Win Rate:* 100% \\(16/16 побед\\)\n"
+	response += "👑 *MVP:* в каждой игре\n"
+	response += "🚀 *Статус:* Абсолютная легенда\n\n"
+	response += "С днюхой, красавчик! 🍻"
+
+	return b.sendMessage(c.Message.Chat.ID, response)
+}
+
 func (b *Bot) sendMessage(chatID int64, text string) error {
 	msg := tgbotapi.NewMessage(chatID, text)
 	msg.ParseMode = tgbotapi.ModeMarkdownV2
@@ -205,6 +227,8 @@ func (b *Bot) Start() error {
 			err = b.handleTopRole(&update)
 		case "prokuror":
 			err = b.handleProkuror(&update)
+		case "happy_birthday":
+			err = b.handleHappyBirthday(&update)
 		}
 
 		if err != nil {
