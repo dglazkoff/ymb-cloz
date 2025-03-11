@@ -204,7 +204,7 @@ func (b *Bot) sendMessage(chatID int64, text string) error {
 
 func (b *Bot) Start() error {
 	u := tgbotapi.NewUpdate(0)
-	u.Timeout = 60
+	u.Timeout = 10
 
 	updates := b.bot.GetUpdatesChan(u)
 
