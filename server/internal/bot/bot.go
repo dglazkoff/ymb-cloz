@@ -56,7 +56,6 @@ Available commands:
 /top\_captains \- Show top captains by win rate
 /top\_role \<role\> \- Show top players by role \(carry/mid/offlane/pos4/pos5\)
 /prokuror \- Show prokuror stats
-/happy\_birthday \- Special birthday wishes for Даник
 
 Example:
 /top\_role carry \- Show top carry players`
@@ -227,8 +226,8 @@ func (b *Bot) Start() error {
 			err = b.handleTopRole(&update)
 		case "prokuror":
 			err = b.handleProkuror(&update)
-		case "happy_birthday":
-			err = b.handleHappyBirthday(&update)
+			//case "happy_birthday":
+			//	err = b.handleHappyBirthday(&update)
 		}
 
 		if err != nil {
